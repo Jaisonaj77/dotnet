@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "Data Source=192.168.1.50;Initial Catalog=KanzWay;User ID=sa;Password=seeroo123#;Connect Timeout=60;Encrypt=False;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir Data -Context KanzDbContext -f
