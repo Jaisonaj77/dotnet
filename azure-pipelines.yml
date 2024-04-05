@@ -36,5 +36,5 @@ steps:
 - checkout: self
   persistCredentials: true
   clean: true
-  fetchDepth: 1
+  fetchDepth: 0
   displayName: 'Checkout repository'
