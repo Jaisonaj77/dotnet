@@ -33,3 +33,14 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(build.artifactStagingDirectory)'
+    Contents: '**\*.zip'
+    TargetFolder: '$(build.artifactStagingDirectory)'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'Azure subscription 1'
+    appName: 'ndzdotnet'
+    package: '$(build.artifactStagingDirectory)/**/*.zip'
