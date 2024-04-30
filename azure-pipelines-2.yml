@@ -39,8 +39,12 @@ steps:
     Contents: '**\*.zip'
     TargetFolder: '$(build.artifactStagingDirectory)'
 
-- task: AzureWebApp@1
+
+- task: AzureRmWebAppDeployment@4
   inputs:
-    azureSubscription: 'Azure subscription 1'
-    appName: 'ndzdotnet'
-    package: '$(build.artifactStagingDirectory)/**/*.zip'
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'Azure subscription 1(e5201be3-096f-432b-8455-8e7dae1dd23b)'
+    appType: 'webApp'
+    WebAppName: 'ndzdotnet'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    enableXmlTransform: true
