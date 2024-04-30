@@ -33,10 +33,3 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(build.artifactStagingDirectory)'
-    Contents: '**'
-    TargetFolder: '\\\\51.195.139.51\\C$\\Users\\Public\\Downloads'
-    CleanTargetFolder: true
-    OverWrite: true
