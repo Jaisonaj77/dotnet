@@ -29,11 +29,10 @@ steps:
     configuration: '$(buildConfiguration)'
 
 
-- task: AzureRmWebAppDeployment@4
+- task: AzureWebApp@1
   inputs:
-    ConnectionType: 'AzureRM'
     azureSubscription: 'Azure subscription 1(e5201be3-096f-432b-8455-8e7dae1dd23b)'
     appType: 'webApp'
-    WebAppName: 'ndzdotnet'
-    packageForLinux: '$(build.artifactStagingDirectory)\WebApp.zip'
-    enableXmlTransform: true
+    appName: 'ndzdotnet'
+    package: '$(build.artifactStagingDirectory)\WebApp.zip'
+    deploymentMethod: 'auto'
