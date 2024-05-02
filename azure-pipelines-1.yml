@@ -33,6 +33,8 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
+
+
   - task: PublishBuildArtifacts@1  # Publish the build artifact
     inputs:
       pathToPublish: '$(build.artifactStagingDirectory)/$(artifactName)'
