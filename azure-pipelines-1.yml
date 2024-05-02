@@ -60,3 +60,11 @@ jobs:
 
         # Copy the artifact to the specified location
         Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
+
+  - task: AzureWebApp@1
+    inputs:
+     azureSubscription: 'Azure subscription 1(e5201be3-096f-432b-8455-8e7dae1dd23b)'
+     appType: 'webApp'
+     appName: 'ndzdotnet'
+     package: '$(Pipeline.Workspace)/$(artifactName)/WebApp.zip'
+     deploymentMethod: 'auto'
