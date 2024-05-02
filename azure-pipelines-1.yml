@@ -24,12 +24,7 @@ jobs:
   - task: VSBuild@1  # Build the solution and create a deployment package
     inputs:
       solution: '$(solution)'
-      msbuildArgs: |
-        /p:DeployOnBuild=true
-        /p:WebPublishMethod=Package
-        /p:PackageAsSingleFile=true
-        /p:SkipInvalidConfigurations=true
-        /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)/$(artifactName)"
+      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)/$(artifactName)"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
