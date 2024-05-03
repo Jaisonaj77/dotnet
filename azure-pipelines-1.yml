@@ -56,7 +56,16 @@ jobs:
       targetType: 'inline'
       script: |
         $sourcePath = "$(Pipeline.Workspace)/$(artifactName)"
-        $targetPath = ‘C:/work’  # Adjust this to where you want to copy
+        $targetPath = 'C:\work'  # Adjust this to where you want to copy
 
         # Copy the artifact to the specified location
         Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
+
+
+  - task: WindowsMachineFileCopy@2
+    inputs:
+     SourcePath: '$(Pipeline.Workspace)'
+     MachineNames: '172.191.183.13'
+     AdminUserName: 'devopstest'
+     AdminPassword: '9Hm45uI>d>1x'
+     TargetPath: 'C:\copypipeline'
