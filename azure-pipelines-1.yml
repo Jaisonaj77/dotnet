@@ -68,4 +68,4 @@ jobs:
      MachineNames: '172.191.183.13'
      AdminUserName: 'devopstest'
      AdminPassword: '9Hm45uI>d>1x'
-     TargetPath: 'C:\copypipeline'
+     TargetPath: '\\172.191.183.13\C$\copypipeline'
