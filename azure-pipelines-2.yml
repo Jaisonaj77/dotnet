@@ -46,6 +46,8 @@ stages:
 # Deployment Stage
 - stage: Deploy
   dependsOn: Build  # Ensure the deployment stage runs only if the build stage is successful
+  pool:
+   name: 'jaison'
   jobs:
   - job: DeployJob
     displayName: 'Deploy to IIS on a remote VM'
@@ -54,5 +56,16 @@ stages:
       inputs:
         artifactName: 'publishedApp'
         targetPath: '$(System.ArtifactsDirectory)'
+
+
+    - task: PowerShell@2  # Copy the artifact to a specific location
+      inputs:
+       targetType: 'inline'
+       script: |
+        $sourcePath = "$(System.ArtifactsDirectory)"
+        $targetPath = 'C:\work'  # Adjust this to where you want to copy
+
+        # Copy the artifact to the specified location
+        Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
 
 
