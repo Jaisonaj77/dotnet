@@ -1,0 +1,58 @@
+trigger:
+- main  # Change to the branch you use for deployment
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  publishDirectory: '$(Build.ArtifactStagingDirectory)/publish'
+
+# Build Stage
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    displayName: 'Build the ASP.NET Core app'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'  # Adjust to your desired .NET Core version
+
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: '**/*.sln'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        projects: '**/*.sln'
+        arguments: '--configuration $(buildConfiguration) --output $(publishDirectory)'
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(publishDirectory)'
+        artifactName: 'publishedApp'
+        publishLocation: 'pipeline'
+
+# Deployment Stage
+- stage: Deploy
+  dependsOn: Build  # Ensure the deployment stage runs only if the build stage is successful
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy to IIS on a remote VM'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: 'publishedApp'
+        targetPath: '$(System.ArtifactsDirectory)'
+
+
