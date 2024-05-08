@@ -51,7 +51,7 @@ jobs:
       targetType: 'inline'
       script: |
         $sourcePath = "$(Pipeline.Workspace)/PublishArtifacts"  # Location of downloaded build artifact
-        $targetPath = 'c:\azuredevops'  # Desired copy location
+        $targetPath = 'C:\azuredevops'  # Desired copy location
 
         # Ensure the target directory exists
         if (-not (Test-Path $targetPath)) {
