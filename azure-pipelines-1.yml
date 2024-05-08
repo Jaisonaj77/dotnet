@@ -45,6 +45,9 @@ jobs:
       artifactName: 'PublishArtifacts'
       downloadPath: '$(Pipeline.Workspace)'  # Location to download the artifact
 
+
+
+
   - task: PowerShell@2
     inputs:
       targetType: 'inline'
@@ -52,19 +55,45 @@ jobs:
         $zipFilePath = "$(Pipeline.Workspace)/PublishArtifacts/Scaffolder.zip"
         $targetPath = 'C:\azuredevops'
 
-        # Ensure the target directory exists
+        # Ensure the target directory exists or create it
         if (-not (Test-Path $targetPath)) {
           New-Item -Path $targetPath -ItemType Directory
         }
 
-        # Extract the zip file to the target directory
-        $shell = New-Object -ComObject Shell.Application
-        $zip = $shell.NameSpace($zipFilePath)
-        $destination = $shell.NameSpace($targetPath)
-
-        foreach ($item in $zip.Items()) {
-          $destination.CopyHere($item)
+        # Ensure the zip file exists
+        if (-not (Test-Path $zipFilePath)) {
+          throw "Zip file not found at $zipFilePath. Ensure the file was downloaded correctly."
         }
 
-        # Verify the contents were extracted successfully
-        Write-Output "Contents extracted to $targetPath"
+        # Create a Shell.Application COM object to extract the zip file
+        $shell = New-Object -ComObject Shell.Application
+
+        # Check if the COM object was created successfully
+        if ($shell -eq $null) {
+          throw "Failed to create the Shell.Application COM object. Ensure it's available on this system."
+        }
+
+        $zip = $shell.NameSpace($zipFilePath)
+
+        # Check if the zip was opened successfully
+        if ($zip -eq $null) {
+          throw "Failed to open the zip file. Ensure the file is valid and accessible."
+        }
+
+        $destination = $shell.NameSpace($targetPath)
+
+        # Ensure the destination is accessible
+        if ($destination -eq $null) {
+          throw "Failed to access the target directory. Check permissions or path issues."
+        }
+
+        # Extract the contents from the zip file
+        foreach ($item in $zip.Items()) {
+          try {
+            $destination.CopyHere($item, 4 + 16)  # Overwrite existing items and show errors
+          } catch {
+            throw "Failed to copy item $($item.Name) to $targetPath: $_.Exception.Message"
+          }
+        }
+
+        Write-Output "Successfully extracted contents to $targetPath."
