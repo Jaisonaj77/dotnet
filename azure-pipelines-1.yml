@@ -33,30 +33,38 @@ jobs:
       publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
 
 - job: CopyOutput
-  displayName: 'Copy Published Files to specific directory'
-  dependsOn: Build  # This job runs only if the build is successful
+  displayName: 'Extract and Copy Artifact to IIS'
   pool:
-    name: 'jaison'  # Using agents
+    vmImage: 'windows-latest'
 
   steps:
-  - task: DownloadBuildArtifacts@0  # Download the build artifact
+  - task: DownloadBuildArtifacts@0
     inputs:
       buildType: 'current'
       downloadType: 'single'
-      artifactName: 'PublishArtifacts'  # Name of the artifact to download
-      downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
+      artifactName: 'PublishArtifacts'
+      downloadPath: '$(Pipeline.Workspace)'  # Location to download the artifact
 
-  - task: PowerShell@2  # Copy the published files to a specific location
+  - task: PowerShell@2
     inputs:
       targetType: 'inline'
       script: |
-        $sourcePath = "$(Pipeline.Workspace)/PublishArtifacts"  # Location of downloaded build artifact
-        $targetPath = 'c:\azuredevops'  # Desired copy location
+        $zipFilePath = "$(Pipeline.Workspace)/PublishArtifacts/Scaffolder.zip"
+        $targetPath = 'C:\inetpub\wwwroot\framework\'
 
         # Ensure the target directory exists
         if (-not (Test-Path $targetPath)) {
           New-Item -Path $targetPath -ItemType Directory
         }
 
-        # Copy the published files to the specified location
-        Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
+        # Extract the zip file to the target directory
+        $shell = New-Object -ComObject Shell.Application
+        $zip = $shell.NameSpace($zipFilePath)
+        $destination = $shell.NameSpace($targetPath)
+
+        foreach ($item in $zip.Items()) {
+          $destination.CopyHere($item)
+        }
+
+        # Verify the contents were extracted successfully
+        Write-Output "Contents extracted to $targetPath"
