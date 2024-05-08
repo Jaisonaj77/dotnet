@@ -33,65 +33,41 @@ jobs:
       publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
 
 - job: CopyOutput
-  displayName: 'Extract and Copy Artifact to IIS'
+  displayName: 'Copy Published Files to specific directory'
+  dependsOn: Build  # This job runs only if the build is successful
   pool:
-    name: 'jaison'
+    name: 'jaison'  # Using agents
 
   steps:
-  - task: DownloadBuildArtifacts@0
+  - task: DownloadBuildArtifacts@0  # Download the build artifact
     inputs:
       buildType: 'current'
       downloadType: 'single'
-      artifactName: 'PublishArtifacts'
-      downloadPath: '$(Pipeline.Workspace)'  # Location to download the artifact
+      artifactName: 'PublishArtifacts'  # Name of the artifact to download
+      downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
 
-
-  - task: PowerShell@2
+  - task: PowerShell@2  # Copy the published files to a specific location
     inputs:
       targetType: 'inline'
       script: |
-        $zipFilePath = "$(Pipeline.Workspace)/PublishArtifacts/Scaffolder.zip"
-        $targetPath = 'C:\azuredevops'
+        $sourcePath = "$(Pipeline.Workspace)/PublishArtifacts"  # Location of downloaded build artifact
+        $targetPath = 'c:\azuredevops'  # Desired copy location
 
-        # Ensure the target directory exists or create it
+        # Ensure the target directory exists
         if (-not (Test-Path $targetPath)) {
           New-Item -Path $targetPath -ItemType Directory
         }
 
-        # Ensure the zip file exists
-        if (-not (Test-Path $zipFilePath)) {
-          throw "Zip file not found at $zipFilePath. Ensure the file was downloaded correctly."
-        }
-
-        # Create a Shell.Application COM object to extract the zip file
+        # Extract the zip file to the target directory
         $shell = New-Object -ComObject Shell.Application
-
-        # Check if the COM object was created successfully
-        if ($shell -eq $null) {
-          throw "Failed to create the Shell.Application COM object. Ensure it's available on this system."
-        }
-
         $zip = $shell.NameSpace($zipFilePath)
-
-        # Check if the zip was opened successfully
-        if ($zip -eq $null) {
-          throw "Failed to open the zip file. Ensure the file is valid and accessible."
-        }
-
         $destination = $shell.NameSpace($targetPath)
 
-        # Ensure the destination is accessible
-        if ($destination -eq $null) {
-          throw "Failed to access the target directory. Check permissions or path issues."
-        }
-
-        # Extract the contents from the zip file
         foreach ($item in $zip.Items()) {
-          try {
-            $destination.CopyHere($item, 4 + 16)  # Overwrite existing items and show errors
-          } catch {
-            throw "Failed to copy item $($item.Name) to $targetPath: $_.Exception.Message"
-          }
+          $destination.CopyHere($item)
         }
 
-        Write-Output "Successfully extracted contents to $targetPath."
+        # Verify the contents were extracted successfully
+        Write-Output "Contents extracted to $targetPath"
+
+
