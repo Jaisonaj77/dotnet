@@ -52,6 +52,6 @@ jobs:
       destinationFolder: 'C:\azuredevops'
       cleanDestinationFolder: true
       overwriteExistingFiles: true
-      pathToSevenZipTool: '$(Pipeline.Workspace)/PublishArtifacts/'
+      pathToSevenZipTool: 'C:\work\1\PublishArtifacts\Scaffolder.zip'
 
 
