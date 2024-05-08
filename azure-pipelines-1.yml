@@ -50,7 +50,7 @@ jobs:
       targetType: 'inline'
       script: |
         $zipFilePath = "$(Pipeline.Workspace)/PublishArtifacts/Scaffolder.zip"
-        $targetPath = 'C:\inetpub\wwwroot\framework\'
+        $targetPath = 'C:\azuredevops'
 
         # Ensure the target directory exists
         if (-not (Test-Path $targetPath)) {
