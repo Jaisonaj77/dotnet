@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-latest'  # Using a Windows-hosted agent pool
 
 variables:
   solution: '**/*.sln'
@@ -20,23 +20,24 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
-  - task: DotNetCoreCLI@2  # Use .NET CLI to publish the project
+  - task: DotNetCoreCLI@2  # Use the .NET CLI to build and publish
     inputs:
       command: 'publish'
-      projects: '$(solution)'  # Publish all projects in the solution
-      arguments: '--output $(publishDirectory) --configuration $(buildConfiguration)'
+      projects: '$(solution)'
+      arguments: '--output $(publishDirectory) --configuration $(buildConfiguration)'  # Publish to folder
+      noBuild: true  # Avoid re-building
 
-  - task: PublishBuildArtifacts@1  # Publish the build artifact
+  - task: PublishBuildArtifacts@1  # Publish the folder-based build artifact
     inputs:
       pathToPublish: '$(publishDirectory)'
       artifactName: 'PublishArtifacts'  # Name for the published artifact
       publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
 
 - job: CopyOutput
-  displayName: 'Copy Published Files to wwwroot'
+  displayName: 'Copy Published Files to C drive'
   dependsOn: Build  # This job runs only if the build is successful
   pool:
-    name: 'jaison'  # Using agents
+    name: 'jaison'
 
   steps:
   - task: DownloadBuildArtifacts@0  # Download the build artifact
@@ -44,14 +45,14 @@ jobs:
       buildType: 'current'
       downloadType: 'single'
       artifactName: 'PublishArtifacts'  # Name of the artifact to download
-      downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
+      downloadPath: '$(Pipeline.Workspace)'
 
-  - task: PowerShell@2  # Copy the published files to a specific location
+  - task: PowerShell@2  # Copy the published files to the specific location
     inputs:
       targetType: 'inline'
       script: |
-        $sourcePath = "$(Pipeline.Workspace)/PublishArtifacts"  # Location of downloaded build artifact
-        $targetPath = 'c:\azuredevops\'  # Desired copy location
+        $sourcePath = "$(Pipeline.Workspace)/PublishArtifacts"  # Downloaded build artifact
+        $targetPath = 'c:\azuredevops'  # Desired copy location
 
         # Ensure the target directory exists
         if (-not (Test-Path $targetPath)) {
@@ -59,4 +60,4 @@ jobs:
         }
 
         # Copy the published files to the specified location
-        Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
+        Copy-Item -Path $sourcePath/* -Destination $targetPath -Recurse -Force
