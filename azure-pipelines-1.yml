@@ -46,11 +46,23 @@ jobs:
       artifactName: 'PublishArtifacts'  # Name of the artifact to download
       downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
 
+  - task: PowerShell@2  # Stop IIS to avoid file locks
+    inputs:
+      targetType: 'inline'
+      script: |
+        iisreset /STOP  # Stop IIS to ensure no files are in use
+
   - task: ExtractFiles@1
     inputs:
       archiveFilePatterns: 'C:\work\1\PublishArtifacts\Scaffolder.zip'
       destinationFolder: 'C:\inetpub\wwwroot\Scaffolder'
       cleanDestinationFolder: true
       overwriteExistingFiles: true
+
+  - task: PowerShell@2  # Start IIS after extraction
+    inputs:
+      targetType: 'inline'
+      script: |
+        iisreset /START  # Start IIS after extracting files
 
 
