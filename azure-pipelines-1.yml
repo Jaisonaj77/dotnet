@@ -61,11 +61,3 @@ jobs:
         # Copy the artifact to the specified location
         Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
 
-
-  - task: WindowsMachineFileCopy@2
-    inputs:
-     SourcePath: '$(Pipeline.Workspace)'
-     MachineNames: '172.191.183.13'
-     AdminUserName: 'devopstest'
-     AdminPassword: '9Hm45uI>d>1x'
-     TargetPath: '\\172.191.183.13\C$\copypipeline'
