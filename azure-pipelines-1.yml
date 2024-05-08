@@ -48,10 +48,9 @@ jobs:
 
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: '**/*.zip'
+      archiveFilePatterns: 'C:\work\1\PublishArtifacts\Scaffolder.zip'
       destinationFolder: 'C:\azuredevops'
       cleanDestinationFolder: true
       overwriteExistingFiles: true
-      pathToSevenZipTool: 'C:\work\1\PublishArtifacts\Scaffolder.zip'
 
 
