@@ -49,7 +49,7 @@ jobs:
   - task: ExtractFiles@1
     inputs:
       archiveFilePatterns: 'C:\work\1\PublishArtifacts\Scaffolder.zip'
-      destinationFolder: 'C:\azuredevops'
+      destinationFolder: 'C:\inetpub\wwwroot\Scaffolder'
       cleanDestinationFolder: true
       overwriteExistingFiles: true
 
