@@ -35,7 +35,7 @@ jobs:
 - job: CopyOutput
   displayName: 'Extract and Copy Artifact to IIS'
   pool:
-    vmImage: 'windows-latest'
+    name: 'jaison'
 
   steps:
   - task: DownloadBuildArtifacts@0
@@ -44,8 +44,6 @@ jobs:
       downloadType: 'single'
       artifactName: 'PublishArtifacts'
       downloadPath: '$(Pipeline.Workspace)'  # Location to download the artifact
-
-
 
 
   - task: PowerShell@2
