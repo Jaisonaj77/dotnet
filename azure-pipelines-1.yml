@@ -1,18 +1,18 @@
-
 trigger:
-- main  # Adjust as needed
+- main
 
 pool:
-  vmImage: 'windows-latest'  # Using Microsoft-hosted agent pool
+  vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'  # Path to the solution file(s)
+  solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  publishDirectory: '$(build.artifactStagingDirectory)/publish'
 
 jobs:
 - job: Build
-  displayName: 'Build ASP.NET Core Solution'
+  displayName: 'Build and Publish ASP.NET Core Solution'
   steps:
   - task: NuGetToolInstaller@1  # Ensure NuGet is installed
 
@@ -20,40 +20,43 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
-  - task: VSBuild@1  # Build the solution and create a deployment package
+  - task: DotNetCoreCLI@2  # Use .NET CLI to publish the project
     inputs:
-      solution: '$(solution)'
-      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)"'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
-
-
+      command: 'publish'
+      projects: '$(solution)'  # Publish all projects in the solution
+      arguments: '--output $(publishDirectory) --configuration $(buildConfiguration)'
 
   - task: PublishBuildArtifacts@1  # Publish the build artifact
     inputs:
-      pathToPublish: '$(build.artifactStagingDirectory)'
+      pathToPublish: '$(publishDirectory)'
+      artifactName: 'PublishArtifacts'  # Name for the published artifact
       publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
 
-# Example deployment or copying job (optional)
 - job: CopyOutput
-  displayName: 'Copy Artifact to Another Location'
-  dependsOn: Build  # This job only runs if the build is successful
+  displayName: 'Copy Published Files to wwwroot'
+  dependsOn: Build  # This job runs only if the build is successful
   pool:
-    name: 'jaison'  # Agent pool where you want to copy the output
+    name: 'jaison'  # Using agents
 
   steps:
   - task: DownloadBuildArtifacts@0  # Download the build artifact
     inputs:
-      buildType: 'current'  # Download the artifact from the current build
+      buildType: 'current'
+      downloadType: 'single'
+      artifactName: 'PublishArtifacts'  # Name of the artifact to download
       downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
 
-  - task: PowerShell@2  # Copy the artifact to a specific location
+  - task: PowerShell@2  # Copy the published files to a specific location
     inputs:
       targetType: 'inline'
       script: |
-        $sourcePath = "$(Pipeline.Workspace)"
-        $targetPath = 'C:\work'  # Adjust this to where you want to copy
+        $sourcePath = "$(Pipeline.Workspace)/PublishArtifacts"  # Location of downloaded build artifact
+        $targetPath = 'c:\azuredevops\'  # Desired copy location
 
-        # Copy the artifact to the specified location
+        # Ensure the target directory exists
+        if (-not (Test-Path $targetPath)) {
+          New-Item -Path $targetPath -ItemType Directory
+        }
+
+        # Copy the published files to the specified location
         Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
-
