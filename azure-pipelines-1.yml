@@ -9,7 +9,6 @@ variables:
   solution: '**/*.sln'  # Path to the solution file(s)
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  artifactName: 'WebApp.zip'  # Name of the artifact to be published
 
 jobs:
 - job: Build
@@ -24,7 +23,7 @@ jobs:
   - task: VSBuild@1  # Build the solution and create a deployment package
     inputs:
       solution: '$(solution)'
-      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)/$(artifactName)"'
+      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
@@ -32,8 +31,7 @@ jobs:
 
   - task: PublishBuildArtifacts@1  # Publish the build artifact
     inputs:
-      pathToPublish: '$(build.artifactStagingDirectory)/$(artifactName)'
-      artifactName: '$(artifactName)'  # Name for the published artifact
+      pathToPublish: '$(build.artifactStagingDirectory)'
       publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
 
 # Example deployment or copying job (optional)
@@ -47,15 +45,13 @@ jobs:
   - task: DownloadBuildArtifacts@0  # Download the build artifact
     inputs:
       buildType: 'current'  # Download the artifact from the current build
-      downloadType: 'single'
-      artifactName: 'WebApp.zip'  # Name of the artifact to download
       downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
 
   - task: PowerShell@2  # Copy the artifact to a specific location
     inputs:
       targetType: 'inline'
       script: |
-        $sourcePath = "$(Pipeline.Workspace)/$(artifactName)"
+        $sourcePath = "$(Pipeline.Workspace)"
         $targetPath = 'C:\work'  # Adjust this to where you want to copy
 
         # Copy the artifact to the specified location
