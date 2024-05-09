@@ -49,13 +49,11 @@ jobs:
   - task: CopyFiles@2
     inputs:
       SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
-      Contents: 'C:\inetpub\wwwroot\Scaffolder'
+      Contents: '**'
       TargetFolder: 'C:\backup'
       CleanTargetFolder: true
       OverWrite: true
-      flattenFolders: true
-      preserveTimestamp: true
-      ignoreMakeDirErrors: true
+
 
   - task: PowerShell@2  # Stop IIS to avoid file locks
     inputs:
