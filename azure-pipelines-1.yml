@@ -46,6 +46,17 @@ jobs:
       artifactName: 'PublishArtifacts'  # Name of the artifact to download
       downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
 
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
+      Contents: 'C:\inetpub\wwwroot\Scaffolder'
+      TargetFolder: 'C:\backup'
+      CleanTargetFolder: true
+      OverWrite: true
+      flattenFolders: true
+      preserveTimestamp: true
+      ignoreMakeDirErrors: true
+
   - task: PowerShell@2  # Stop IIS to avoid file locks
     inputs:
       targetType: 'inline'
