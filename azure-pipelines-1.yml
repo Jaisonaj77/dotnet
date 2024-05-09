@@ -65,4 +65,14 @@ jobs:
       script: |
         iisreset /START  # Start IIS after extracting files
 
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Pipeline.Workspace)\PublishArtifacts\Scaffolder.zip'
+      destinationFolder: 'C:\backup'
+      cleanDestinationFolder: true
+      overwriteExistingFiles: true
+
+
+
+
 
