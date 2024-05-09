@@ -50,9 +50,10 @@ jobs:
     inputs:
       SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
       Contents: '**'
-      TargetFolder: 'C:\backup'
+      TargetFolder: 'C:\backup\Scaffolder'
       CleanTargetFolder: true
       OverWrite: true
+
 
 
   - task: PowerShell@2  # Stop IIS to avoid file locks
