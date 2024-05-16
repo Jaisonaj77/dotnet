@@ -52,8 +52,13 @@ jobs:
       if (Test-Path $targetFolder) {
        Remove-Item -Path $targetFolder -Recurse -Force
       }
-      New-Item -ItemType Directory -Path $targetFolder
-      robocopy "C:\inetpub\wwwroot\Scaffolder" $targetFolder /E
+      New-Item -ItemType Directory -Path $targetFolder -ErrorAction SilentlyContinue
+      robocopy "C:\inetpub\wwwroot\Scaffolder" $targetFolder /E /R:1 /W:1 /LOG+:C:\backup\robocopy_log.txt
+      if ($LASTEXITCODE -ne 0) {
+        Write-Host "Error occurred during robocopy operation. Exiting script."
+        exit 1
+      }
+      Write-Host "Backup completed successfully."
     displayName: 'Create Backup Folder & take backup'
 
   - task: PowerShell@2  # Stop IIS to avoid file locks
