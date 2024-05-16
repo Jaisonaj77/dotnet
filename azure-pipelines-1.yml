@@ -55,7 +55,7 @@ jobs:
     inputs:
       SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
       Contents: '**'
-      TargetFolder: $targetFolder
+      TargetFolder: '$(targetFolder)'
       CleanTargetFolder: true
       OverWrite: true
 
