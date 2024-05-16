@@ -50,7 +50,7 @@ jobs:
     inputs:
       SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
       Contents: '**'
-      TargetFolder: 'C:\backup\Scaffolder'
+      TargetFolder: 'C:\backup\Scaffolder_$(Build.BuildId)_$(Date:yyyyMMdd)'
       CleanTargetFolder: true
       OverWrite: true
 
