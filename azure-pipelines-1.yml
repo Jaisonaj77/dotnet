@@ -32,6 +32,15 @@ jobs:
       artifactName: 'PublishArtifacts'  # Name for the published artifact
       publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
 
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '5.x'
+
+  - script: |
+      sqlplus sys/PzK438uNmcg1k#_@144.24.133.44:1521/DB0514_testdb.sub05140944520.vcn.oraclevcn.com AS SYSDBA @$(System.DefaultWorkingDirectory)oraclescript.sql
+      displayName: 'Execute SQL Script'
+
 - job: CopyOutput
   displayName: 'Copy Published Files to specific directory'
   dependsOn: Build  # This job runs only if the build is successful
@@ -74,8 +83,6 @@ jobs:
       targetType: 'inline'
       script: |
         iisreset /START  # Start IIS after extracting files
-
-
 
 
 
