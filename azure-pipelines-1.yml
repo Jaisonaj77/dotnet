@@ -46,11 +46,16 @@ jobs:
       artifactName: 'PublishArtifacts'  # Name of the artifact to download
       downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
 
+  - powershell: |
+      $currentDate = Get-Date -Format "yyyyMMdd"
+      $targetFolder = "C:\backup\Scaffolder_$currentDate"
+      New-Item -ItemType Directory -Path $targetFolder
+    displayName: 'Create Backup Folder'
   - task: CopyFiles@2
     inputs:
       SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
       Contents: '**'
-      TargetFolder: 'C:\backup\Scaffolder_$(Date:mmddyyyy)'
+      TargetFolder: $targetFolder
       CleanTargetFolder: true
       OverWrite: true
 
