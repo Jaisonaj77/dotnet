@@ -77,7 +77,7 @@ jobs:
 
 
   - script: |
-      C:\Users\devopstest\sql\sql\sqlplus sys/PzK438uNmcg1k#_@144.24.133.44:1521/DB0514_testdb.sub05140944520.vcn.oraclevcn.com AS SYSDBA @$(System.DefaultWorkingDirectory)oraclescript.sql
+      C:\Users\devopstest\sql\sql\sqlplus sys/PzK438uNmcg1k#_@144.24.133.44:1521/DB0514_testdb.sub05140944520.vcn.oraclevcn.com AS SYSDBA @$(System.DefaultWorkingDirectory)\oraclescript.sql
     displayName: 'Execute SQL Script'
 
 
