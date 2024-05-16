@@ -49,6 +49,9 @@ jobs:
   - powershell: |
       $currentDate = Get-Date -Format "yyyyMMdd"
       $targetFolder = "C:\backup\Scaffolder_$currentDate"
+      if (Test-Path $targetFolder) {
+       Remove-Item -Path $targetFolder -Recurse -Force
+      }
       New-Item -ItemType Directory -Path $targetFolder
     displayName: 'Create Backup Folder'
   - task: CopyFiles@2
