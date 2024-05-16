@@ -53,16 +53,8 @@ jobs:
        Remove-Item -Path $targetFolder -Recurse -Force
       }
       New-Item -ItemType Directory -Path $targetFolder
-    displayName: 'Create Backup Folder'
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: 'C:\inetpub\wwwroot\Scaffolder'
-      Contents: '**'
-      TargetFolder: '$(targetFolder)'
-      CleanTargetFolder: true
-      OverWrite: true
-
-
+      robocopy "C:\inetpub\wwwroot\Scaffolder" $targetFolder /E
+    displayName: 'Create Backup Folder & take backup'
 
   - task: PowerShell@2  # Stop IIS to avoid file locks
     inputs:
