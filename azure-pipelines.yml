@@ -1,0 +1,84 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  publishDirectory: '$(build.artifactStagingDirectory)/publish'
+
+jobs:
+- job: Build
+  displayName: 'Build and Publish ASP.NET Core Solution'
+  steps:
+  - task: NuGetToolInstaller@1  # Ensure NuGet is installed
+
+  - task: NuGetCommand@2  # Restore NuGet packages
+    inputs:
+      restoreSolution: '$(solution)'
+
+  - task: DotNetCoreCLI@2  # Use .NET CLI to publish the project
+    inputs:
+      command: 'publish'
+      projects: '$(solution)'  # Publish all projects in the solution
+      arguments: '--output $(publishDirectory) --configuration $(buildConfiguration)'
+
+  - task: PublishBuildArtifacts@1  # Publish the build artifact
+    inputs:
+      pathToPublish: '$(publishDirectory)'
+      artifactName: 'PublishArtifacts'  # Name for the published artifact
+      publishLocation: 'Container'  # Publish to the Azure DevOps artifact container
+
+- job: CopyOutput
+  displayName: 'Copy Published Files to specific directory'
+  dependsOn: Build  # This job runs only if the build is successful
+  pool:
+    name: 'jaison'  # Using agents
+
+  steps:
+  - task: DownloadBuildArtifacts@0  # Download the build artifact
+    inputs:
+      buildType: 'current'
+      downloadType: 'single'
+      artifactName: 'PublishArtifacts'  # Name of the artifact to download
+      downloadPath: '$(Pipeline.Workspace)'  # Download location on the agent
+
+  - powershell: |
+      $currentDate = Get-Date -Format "yyyyMMdd"
+      $targetFolder = "C:\backup\Scaffolder_$currentDate"
+      if (Test-Path $targetFolder) {
+       Remove-Item -Path $targetFolder -Recurse -Force
+      }
+      New-Item -ItemType Directory -Path $targetFolder -ErrorAction SilentlyContinue
+      $sourceFolder = "C:\inetpub\wwwroot\Scaffolder"
+      Copy-Item -Path $sourceFolder -Destination $targetFolder -Recurse -Force -ErrorAction Stop
+      Write-Host "Backup completed successfully."
+    displayName: 'Create Backup Folder & take backup'
+
+  - task: PowerShell@2  # Stop IIS to avoid file locks
+    inputs:
+      targetType: 'inline'
+      script: |
+        iisreset /STOP  # Stop IIS to ensure no files are in use
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Pipeline.Workspace)\PublishArtifacts\Scaffolder.zip'
+      destinationFolder: 'C:\inetpub\wwwroot\Scaffolder'
+      cleanDestinationFolder: true
+      overwriteExistingFiles: true
+
+  - task: PowerShell@2  # Start IIS after extraction
+    inputs:
+      targetType: 'inline'
+      script: |
+        iisreset /START  # Start IIS after extracting files
+
+
+  - script: |
+      C:\Users\devopstest\sql\sql\sqlplus sys/PzK438uNmcg1k#_@144.24.133.44:1521/DB0514_testdb.sub05140944520.vcn.oraclevcn.com AS SYSDBA @$(System.DefaultWorkingDirectory)\oraclescript.sql
+    displayName: 'Execute SQL Script'
+
